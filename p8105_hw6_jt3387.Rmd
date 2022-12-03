@@ -243,3 +243,13 @@ pivotdata %>%
 ```
 
 - From the boxplot, we can see that many variables' IQR is not large and there are also outliers in them.
+
+Have a overview of the preliminary model based on previous analysis and known associations between birth weight and other variables, and find a better subset using `regsubsets` function.
+
+```{r}
+pre_model = lm(bwt ~ babysex + bhead + blength + frace + gaweeks + mheight + momage + mrace + smoken + wtgain, data = birthweight)
+summary(pre_model) %>% 
+  broom::tidy()
+```
+
+- From the regression result, we can see that, the coefficients of variables `frace`, `momage`, and `mrace` are not statistically significant, which all have p-values greater than 0.05.
