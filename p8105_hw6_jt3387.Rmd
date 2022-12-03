@@ -86,7 +86,7 @@ The point of this is not to say you should always use the bootstrap -- it's poss
 
 ## Problem 2
 
-Load and clean the dataset.
+Load and clean the data set.
 
 ```{r}
 raw_data <- read.csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv")
@@ -97,4 +97,23 @@ homicide <- raw_data %>%
          victim_age = as.numeric(victim_age)) %>% 
   filter(!city_state %in% c("Dallas, TX", "Phoenix, AZ", "Kansas City, MO", "Tulsa, AL"),
          victim_race %in% c("White", "Black"))
+```
+
+Fit a logistic regression model for city of Baltimore, MD.
+
+```{r}
+baltimore_df = homicide %>%
+  filter(city_state == "Baltimore, MD")
+
+baltimore_glm = 
+  glm(resolution ~ victim_age + victim_sex + victim_race, family = binomial, data = baltimore_df) %>%
+  broom::tidy() %>% 
+  mutate(OR = exp(estimate),
+         CI_lower = exp(estimate - 1.96 * std.error),
+         CI_upper = exp(estimate + 1.96 * std.error)) %>%
+  filter(term == "victim_sexMale") %>%
+  select(term, OR, CI_lower, CI_upper)
+
+baltimore_glm %>% 
+  knitr::kable(digits = 3)
 ```
