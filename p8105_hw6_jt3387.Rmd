@@ -310,3 +310,15 @@ birthweight %>%
     y = "Residuals"
   )
 ```
+
+modeling process:
+
+- Clean the data set including convert variables format and check missing data.
+
+- Check the distribution of the outcome `bwt`, and find that it follows normal distribution.
+
+- Draw a correlation coefficient matrix to see the relationship between variables and the boxplot to check the distribution and outliers of every quantitative variables.
+
+- Build a linear regression model with variables of the initial selection, the  use regsubset function to choose a best model of the subsets by maximizing adjusted r2 and minimizing Cp and BIC.
+
+- Model diagnosis using residual vs fitted values plot.
