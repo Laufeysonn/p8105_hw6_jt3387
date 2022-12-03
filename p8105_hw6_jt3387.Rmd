@@ -293,3 +293,20 @@ final_model = lm(bwt ~ babysex + bhead + blength + gaweeks + mheight + mrace + s
 summary(final_model) %>% 
   broom::tidy()
 ```
+
+Draw a plot of model residuals against fitted values.
+
+```{r message = FALSE}
+birthweight %>% 
+  add_predictions(final_model) %>% 
+  add_residuals(final_model) %>% 
+  ggplot(aes(x = pred, y = resid)) + 
+  geom_point(alpha = 0.3) + 
+  geom_smooth(se = FALSE) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
+  labs(
+    title = "Residuals vs Fitted",
+    x = "Fitted Values",
+    y = "Residuals"
+  )
+```
