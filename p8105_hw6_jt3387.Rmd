@@ -218,3 +218,28 @@ ggcorrplot(cor, type = "lower", hc.order = TRUE, lab = TRUE, lab_size = 3) +
 ```
 
 - From the correlation coefficient matrix, we can see that the correlation coefficients between some variables are very large such as `delwt` and `ppwt`, `ppbmi` and `ppwt`, so introducing all of them into the regression model will result in multicollinearity problems. 
+
+Use boxplot to check the distribution of variables.
+
+```{r}
+pivotdata <- birthweight %>% 
+  select(2, 3, 5, 6, 8, 10:12, 17:20) %>% 
+  pivot_longer(
+    everything(),
+    names_to = "variable",
+    values_to = "value"
+  )
+pivotdata %>% 
+  ggplot(aes(factor(variable), value)) + 
+  geom_boxplot(
+    aes(color = variable), 
+    show.legend = FALSE, outlier.size = .8) + 
+  facet_wrap(~variable, scale = "free") + 
+  labs(
+    title = "Boxplots of 12 numeric variables",
+    x = "Variable",
+    y = "Value"
+  )
+```
+
+- From the boxplot, we can see that many variables' IQR is not large and there are also outliers in them.
