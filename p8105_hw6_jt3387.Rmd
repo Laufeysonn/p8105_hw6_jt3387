@@ -205,3 +205,16 @@ birthweight %>% ggplot(aes(x = bwt)) +
 ```
 
 - From the distribution curve, we can see that the distribution of birthweight is roughly normal. Therefore, we think that it satisfies the normal assumption.
+
+Draw a correlation coefficient matrix to see the relationship between different variables.
+
+```{r}
+cor <- birthweight %>% 
+  select(2:6, 8, 10:12, 17:20) %>% 
+  cor() %>% 
+  round(3)
+ggcorrplot(cor, type = "lower", hc.order = TRUE, lab = TRUE, lab_size = 3) + 
+  guides(fill = guide_legend(title = "Pearson\nCorrelation"))
+```
+
+- From the correlation coefficient matrix, we can see that the correlation coefficients between some variables are very large such as `delwt` and `ppwt`, `ppbmi` and `ppwt`, so introducing all of them into the regression model will result in multicollinearity problems. 
