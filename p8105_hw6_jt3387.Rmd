@@ -164,7 +164,7 @@ Comments on the plot:
 
 ## Problem 3
 
-Load and clean the data.
+Load and clean the data set.
 
 ```{r message = FALSE}
 birthweight <-read_csv("./data/birthweight.csv") %>% 
@@ -182,3 +182,11 @@ birthweight1 <- birthweight %>%
 ```
 
 - I converted four variables: `babysex`, `frace`, `malform`, `mrace` into factors and recoded their values to the associated levels, then checked for missing data and the result indicated that there is no missing data.
+
+Have a overview of the statistics of variables.
+
+```{r}
+summary(birthweight)
+```
+
+-  We can find that there are only 0 values in variables `pnumlbw` and `pnumsga`, for variable `parity`, only 3 values are not 0 while other 4339 values are all 0, and variable `malform` has the similar situation. Therefore they are not suitable to be predictors for regression. 
