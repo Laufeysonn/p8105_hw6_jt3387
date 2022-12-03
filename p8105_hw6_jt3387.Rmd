@@ -147,10 +147,9 @@ all_city_glm %>%
   ggplot(aes(x = city_state, y = OR)) + 
   geom_point() + 
   geom_errorbar(aes(ymin = CI_lower, ymax = CI_upper)) + 
-  labs(
-    title = "Estimated OR and CI for Each City",
-    x = "City, State",
-    y = "Estimated Odds Ratio") +
+  labs(title = "Estimated OR and CI for Each City",
+       x = "City, State",
+       y = "Estimated Odds Ratio") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
@@ -160,11 +159,11 @@ Comments on the plot:
 
 - New York, NY has the lowest estimated odds ratio and a relatively narrow CI, while Albuquerque, NM has the highest estimated odds ratio and a relatively broad CI among all cities.
 
-- Some cities' CI contain 1, so there is not significant difference in chance of solving the homicides with male or female victims at 0.05 significant level. Also, some cities have fairly broad confidence intervals which indicates dispersion in the data, so the estimated result must be interpreted with caution.
+- Some cities' confidence intervals contain 1, so there is no significant difference in chance of solving the homicides with male or female victims at 0.05 significant level. Also, some cities have fairly broad confidence intervals which indicates dispersion in the data, so the estimated result must be interpreted with caution.
 
 ## Problem 3
 
-Load and clean the data set.
+Load, clean, and have a overview of the data set.
 
 ```{r message = FALSE}
 birthweight <-read_csv("./data/birthweight.csv") %>% 
@@ -174,11 +173,8 @@ birthweight <-read_csv("./data/birthweight.csv") %>%
                         `4` = "Puerto Rican", `8` = "Other", `9` = "Unknown")),
          malform = factor(recode(malform, `0` = "Absent", `1` = "Present")),
          mrace = factor(recode(mrace, `1` = "White", `2` = "Black", `3` = "Asian",
-                               `4` = "Puerto Rican", `8` = "Other"))
-  )
+                               `4` = "Puerto Rican", `8` = "Other")))
 skimr::skim(birthweight)
-birthweight1 <- birthweight %>% 
-  mutate(parity = factor(parity))
 ```
 
 - I converted four variables: `babysex`, `frace`, `malform`, `mrace` into factors and recoded their values to the associated levels, then checked for missing data and the result indicated that there is no missing data.
@@ -189,7 +185,7 @@ Have a overview of the statistics of variables.
 summary(birthweight)
 ```
 
--  We can find that there are only 0 values in variables `pnumlbw` and `pnumsga`, for variable `parity`, only 3 values are not 0 while other 4339 values are all 0, and variable `malform` has the similar situation. Therefore they are not suitable to be predictors for regression. 
+-  We can find that there are only 0 values in variables `pnumlbw` and `pnumsga`, for variable `parity`, only 3 values are not 0 while other 4339 values are all 0, and variable `malform` has the similar situation. Therefore, they are not suitable to be predictors for regression. 
 
 Check the distribution of the outcome to see whether it satisfies the normality assumption and whether it needs transformation.
 
@@ -197,14 +193,12 @@ Check the distribution of the outcome to see whether it satisfies the normality 
 birthweight %>% ggplot(aes(x = bwt)) + 
   geom_histogram(aes(y = ..density..), fill = "light blue") +
   geom_density() + 
-  labs(
-    title = "Birthweight Distribution",
-    x = "Birthweight (grams)",
-    y = "Density"
-  )
+  labs(title = "Birthweight Distribution",
+       x = "Birthweight (grams)",
+       y = "Density")
 ```
 
-- From the distribution curve, we can see that the distribution of birthweight is roughly normal. Therefore, we think that it satisfies the normal assumption.
+- From the distribution curve, we can see that the distribution of `bwt` is roughly normal. Therefore, we think that it satisfies the normal assumption.
 
 Draw a correlation coefficient matrix to see the relationship between different variables.
 
@@ -224,27 +218,24 @@ Use boxplot to check the distribution of variables.
 ```{r}
 pivotdata <- birthweight %>% 
   select(2, 3, 5, 6, 8, 10:12, 17:20) %>% 
-  pivot_longer(
-    everything(),
-    names_to = "variable",
-    values_to = "value"
-  )
+  pivot_longer(everything(),
+               names_to = "variable",
+               values_to = "value")
+
 pivotdata %>% 
   ggplot(aes(factor(variable), value)) + 
   geom_boxplot(
     aes(color = variable), 
     show.legend = FALSE, outlier.size = .8) + 
   facet_wrap(~variable, scale = "free") + 
-  labs(
-    title = "Boxplots of 12 numeric variables",
-    x = "Variable",
-    y = "Value"
-  )
+  labs(title = "Boxplots of 12 numeric variables",
+       x = "Variable",
+       y = "Value")
 ```
 
 - From the boxplot, we can see that many variables' IQR is not large and there are also outliers in them.
 
-Have a overview of the preliminary model based on previous analysis and known associations between birth weight and other variables, and find a better subset using `regsubsets` function.
+Have a overview of the preliminary model based on a hypothesized structure for the factors that underly birthweight and previous analysis, and find a better subset using `regsubsets` function.
 
 ```{r}
 pre_model = lm(bwt ~ babysex + bhead + blength + frace + gaweeks + mheight + momage + mrace + smoken + wtgain, data = birthweight)
@@ -258,31 +249,26 @@ summary(pre_model) %>%
 subset_model = regsubsets(bwt ~ babysex + bhead + blength + frace + gaweeks + mheight + momage + mrace + smoken + wtgain, data = birthweight)
 subset_model_sum = summary(subset_model)
 subset_model_sum
+
 cp_bic_r_df = data.frame(c(1:8), subset_model_sum$cp, subset_model_sum$bic, subset_model_sum$adjr2)
 p_cp <- ggplot() + 
-  geom_line(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.cp, colour = "Cp"), size = 1) +
-  geom_point(data = cp_bic_r_df, aes(x = c.1.8.,y = subset_model_sum.cp, colour = "Cp"), size = 3) + 
-  labs(
-    title = "Cp of models",
-    x = "Model",
-    y = "Cp"
-  )
+  geom_line(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.cp), size = 1) +
+  geom_point(data = cp_bic_r_df, aes(x = c.1.8.,y = subset_model_sum.cp), size = 3) + 
+  labs(title = "Cp of models",
+       x = "Model",
+       y = "Cp")
 p_bic <- ggplot() +
-  geom_line(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.bic, colour ="BIC"), size = 1) + 
-  geom_point(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.bic, colour = "BIC"), size = 3) +
-  labs(
-    title = "BIC of models",
-    x = "Model",
-    y = "BIC"
-  )
+  geom_line(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.bic), size = 1) + 
+  geom_point(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.bic), size = 3) +
+  labs(title = "BIC of models",
+       x = "Model",
+       y = "BIC")
 p_adjr2 <- ggplot() +
-  geom_line(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.adjr2, colour ="adjusted_r2"), size = 1) + 
-  geom_point(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.adjr2, colour = "adjusted_r2"), size = 3) +
-  labs(
-    title = "Adjusted R2 of models",
-    x = "Model",
-    y = "Adjusted R2"
-  )
+  geom_line(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.adjr2), size = 1) + 
+  geom_point(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.adjr2), size = 3) +
+  labs(title = "Adjusted R2 of models",
+       x = "Model",
+       y = "Adjusted R2")
 p_cp + p_bic + p_adjr2
 ```
 
@@ -304,57 +290,50 @@ birthweight %>%
   geom_point(alpha = 0.3) + 
   geom_smooth(se = FALSE) + 
   geom_hline(yintercept = 0, linetype = "dashed", color = "red") + 
-  labs(
-    title = "Residuals vs Fitted",
-    x = "Fitted Values",
-    y = "Residuals"
-  )
+  labs(title = "Residuals vs Fitted",
+       x = "Fitted Values",
+       y = "Residuals")
 ```
 
-modeling process:
+Modeling process:
 
-- Clean the data set including convert variables format and check missing data.
+- Clean the data set including convert variables format and check missing values.
 
 - Check the distribution of the outcome `bwt`, and find that it follows normal distribution.
 
 - Draw a correlation coefficient matrix to see the relationship between variables and the boxplot to check the distribution and outliers of every quantitative variables.
 
-- Build a linear regression model with variables of the initial selection, the  use regsubset function to choose a best model of the subsets by maximizing adjusted r2 and minimizing Cp and BIC.
+- Build a linear regression model with variables of the initial selection, then use `regsubset` function to choose a best model of the subsets by maximizing adjusted r2 and minimizing Cp and BIC.
 
 - Model diagnosis using residual vs fitted values plot.
 
 Model comparisons
 
 ```{r}
-birthweight_cv <- crossv_mc(birthweight, 100)
+birthweight_cv <- crossv_mc(birthweight, 1000)
 
 birthweight_cv <- birthweight_cv %>% 
-  mutate(mod1 = map(train, ~lm(bwt ~ babysex + bhead + blength + gaweeks + 
-                                 mheight + mrace + smoken + wtgain, data = .x)),
+  mutate(mod1 = map(train, ~lm(bwt ~ babysex + bhead + blength + gaweeks + mheight + mrace + 
+                                 smoken + wtgain, data = .x)),
          mod2 = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
          mod3 = map(train, ~lm(bwt ~ bhead + blength + babysex + bhead * blength + bhead * babysex + 
-                                 blength * babysex + bhead * blength * babysex, data = .x))
-         ) %>% 
+                                 blength * babysex + bhead * blength * babysex, data = .x))) %>% 
   mutate(rmse_mod1 = map2_dbl(mod1, test, ~rmse(model = .x, data = .y)),
          rmse_mod2 = map2_dbl(mod2, test, ~rmse(model = .x, data = .y)),
-         rmse_mod3 = map2_dbl(mod3, test, ~rmse(model = .x, data = .y))
-         )
+         rmse_mod3 = map2_dbl(mod3, test, ~rmse(model = .x, data = .y)))
 
 birthweight_cv %>% 
   select(c(7:9)) %>% 
   pivot_longer(everything(),
                names_to = "model",
                values_to = "rmse",
-               names_prefix = "rmse_"
-               ) %>% 
+               names_prefix = "rmse_") %>% 
   mutate(model = fct_inorder(model)) %>% 
   ggplot(aes(x = model, y = rmse, fill = model)) + 
   geom_violin(alpha = 0.3) + 
-  labs(
-    title = "Model Comparison",
-    x = "Model",
-    y = "Rmse"
-  )
+  labs(title = "Model Comparison",
+       x = "Model",
+       y = "Rmse")
 ```
 
-- From the violin plot, we can see that the model we choose has the lowest prediction error compared to the other two models. The second model with baby length and gestational age as predictors performs the worst which has the highest RMSE overall, and the interaction model is in the middle.
+- From the violin plot, we can see that the model we choose has the lowest prediction error compared to the other two models. The second model with baby length and gestational age as predictors performs the worst which has the highest Rmse overall, and the interaction model is in the middle.
