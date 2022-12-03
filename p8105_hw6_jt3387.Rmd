@@ -153,3 +153,11 @@ all_city_glm %>%
     y = "Estimated Odds Ratio") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
+
+Comments on the plot:
+
+- Most of the cities has a estimated odds ratio below 1, which indicates homicides with male victim have lower chance to be resolved than those with female victim.
+
+- New York, NY has the lowest estimated odds ratio and a relatively narrow CI, while Albuquerque, NM has the highest estimated odds ratio and a relatively broad CI among all cities.
+
+- Some cities' CI contain 1, so there is not significant difference in chance of solving the homicides with male or female victims at 0.05 significant level. Also, some cities have fairly broad confidence intervals which indicates dispersion in the data, so the estimated result must be interpreted with caution.
