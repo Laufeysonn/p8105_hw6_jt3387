@@ -117,3 +117,24 @@ baltimore_glm =
 baltimore_glm %>% 
   knitr::kable(digits = 3)
 ```
+
+- The estimate value of the adjusted odds ratio is 0.426, the confidence interval is (0.325, 0.558).
+
+Run glm for each of the cities.
+
+```{r}
+all_city_glm = homicide %>% 
+  nest(data = -city_state) %>% 
+  mutate(model = map(data, ~glm(resolution ~ victim_age + victim_sex + victim_race, 
+                                family = binomial, data = .x)), 
+         tidy_result = map(model, broom::tidy)) %>% 
+  select(city_state, tidy_result) %>% 
+  unnest(tidy_result) %>%
+  mutate(OR = exp(estimate), 
+         CI_lower = exp(estimate - 1.96 * std.error), 
+         CI_upper = exp(estimate + 1.96 * std.error)) %>%
+  filter(term == "victim_sexMale") %>%
+  select(city_state, OR, CI_lower, CI_upper)
+all_city_glm %>% 
+  knitr::kable(digits = 3)
+```
