@@ -161,3 +161,24 @@ Comments on the plot:
 - New York, NY has the lowest estimated odds ratio and a relatively narrow CI, while Albuquerque, NM has the highest estimated odds ratio and a relatively broad CI among all cities.
 
 - Some cities' CI contain 1, so there is not significant difference in chance of solving the homicides with male or female victims at 0.05 significant level. Also, some cities have fairly broad confidence intervals which indicates dispersion in the data, so the estimated result must be interpreted with caution.
+
+## Problem 3
+
+Load and clean the data.
+
+```{r message = FALSE}
+birthweight <-read_csv("./data/birthweight.csv") %>% 
+  janitor::clean_names() %>%
+  mutate(babysex = factor(recode(babysex, `1` = "Male", `2` = "Female")),
+         frace = factor(recode(frace, `1` = "White", `2` = "Black", `3` = "Asian",
+                        `4` = "Puerto Rican", `8` = "Other", `9` = "Unknown")),
+         malform = factor(recode(malform, `0` = "Absent", `1` = "Present")),
+         mrace = factor(recode(mrace, `1` = "White", `2` = "Black", `3` = "Asian",
+                               `4` = "Puerto Rican", `8` = "Other"))
+  )
+skimr::skim(birthweight)
+birthweight1 <- birthweight %>% 
+  mutate(parity = factor(parity))
+```
+
+- I converted four variables: `babysex`, `frace`, `malform`, `mrace` into factors and recoded their values to the associated levels, then checked for missing data and the result indicated that there is no missing data.
