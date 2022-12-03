@@ -310,7 +310,7 @@ Modeling process:
 Model comparisons
 
 ```{r}
-birthweight_cv <- crossv_mc(birthweight, 1000)
+birthweight_cv <- crossv_mc(birthweight, 100)
 
 birthweight_cv <- birthweight_cv %>% 
   mutate(mod1 = map(train, ~lm(bwt ~ babysex + bhead + blength + gaweeks + mheight + mrace + 
