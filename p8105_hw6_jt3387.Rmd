@@ -287,3 +287,9 @@ p_cp + p_bic + p_adjr2
 ```
 
 - From the Cp, BIC, adjusted r2 plot, we can see that the 8th model has the highest adjusted r2 and lowest Cp and BIC. Therefore, we choose model 8 as our final model. The model contains variables: `babysex`, `bhead`, `blength`, `gaweeks`, `mheight`, `mrace`, `smoken`, and `wtgain`, so we excluded `frace` and `momage` from the preliminary model.
+
+```{r}
+final_model = lm(bwt ~ babysex + bhead + blength + gaweeks + mheight + mrace + smoken + wtgain, data = birthweight)
+summary(final_model) %>% 
+  broom::tidy()
+```
