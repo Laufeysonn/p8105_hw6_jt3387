@@ -253,3 +253,37 @@ summary(pre_model) %>%
 ```
 
 - From the regression result, we can see that, the coefficients of variables `frace`, `momage`, and `mrace` are not statistically significant, which all have p-values greater than 0.05.
+
+```{r}
+subset_model = regsubsets(bwt ~ babysex + bhead + blength + frace + gaweeks + mheight + momage + mrace + smoken + wtgain, data = birthweight)
+subset_model_sum = summary(subset_model)
+subset_model_sum
+cp_bic_r_df = data.frame(c(1:8), subset_model_sum$cp, subset_model_sum$bic, subset_model_sum$adjr2)
+p_cp <- ggplot() + 
+  geom_line(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.cp, colour = "Cp"), size = 1) +
+  geom_point(data = cp_bic_r_df, aes(x = c.1.8.,y = subset_model_sum.cp, colour = "Cp"), size = 3) + 
+  labs(
+    title = "Cp of models",
+    x = "Model",
+    y = "Cp"
+  )
+p_bic <- ggplot() +
+  geom_line(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.bic, colour ="BIC"), size = 1) + 
+  geom_point(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.bic, colour = "BIC"), size = 3) +
+  labs(
+    title = "BIC of models",
+    x = "Model",
+    y = "BIC"
+  )
+p_adjr2 <- ggplot() +
+  geom_line(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.adjr2, colour ="adjusted_r2"), size = 1) + 
+  geom_point(data = cp_bic_r_df, aes(x = c.1.8., y = subset_model_sum.adjr2, colour = "adjusted_r2"), size = 3) +
+  labs(
+    title = "Adjusted R2 of models",
+    x = "Model",
+    y = "Adjusted R2"
+  )
+p_cp + p_bic + p_adjr2
+```
+
+- From the Cp, BIC, adjusted r2 plot, we can see that the 8th model has the highest adjusted r2 and lowest Cp and BIC. Therefore, we choose model 8 as our final model. The model contains variables: `babysex`, `bhead`, `blength`, `gaweeks`, `mheight`, `mrace`, `smoken`, and `wtgain`, so we excluded `frace` and `momage` from the preliminary model.
