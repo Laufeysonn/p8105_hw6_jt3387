@@ -322,3 +322,39 @@ modeling process:
 - Build a linear regression model with variables of the initial selection, the  use regsubset function to choose a best model of the subsets by maximizing adjusted r2 and minimizing Cp and BIC.
 
 - Model diagnosis using residual vs fitted values plot.
+
+Model comparisons
+
+```{r}
+birthweight_cv <- crossv_mc(birthweight, 100)
+
+birthweight_cv <- birthweight_cv %>% 
+  mutate(mod1 = map(train, ~lm(bwt ~ babysex + bhead + blength + gaweeks + 
+                                 mheight + mrace + smoken + wtgain, data = .x)),
+         mod2 = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
+         mod3 = map(train, ~lm(bwt ~ bhead + blength + babysex + bhead * blength + bhead * babysex + 
+                                 blength * babysex + bhead * blength * babysex, data = .x))
+         ) %>% 
+  mutate(rmse_mod1 = map2_dbl(mod1, test, ~rmse(model = .x, data = .y)),
+         rmse_mod2 = map2_dbl(mod2, test, ~rmse(model = .x, data = .y)),
+         rmse_mod3 = map2_dbl(mod3, test, ~rmse(model = .x, data = .y))
+         )
+
+birthweight_cv %>% 
+  select(c(7:9)) %>% 
+  pivot_longer(everything(),
+               names_to = "model",
+               values_to = "rmse",
+               names_prefix = "rmse_"
+               ) %>% 
+  mutate(model = fct_inorder(model)) %>% 
+  ggplot(aes(x = model, y = rmse, fill = model)) + 
+  geom_violin(alpha = 0.3) + 
+  labs(
+    title = "Model Comparison",
+    x = "Model",
+    y = "Rmse"
+  )
+```
+
+- From the violin plot, we can see that the model we choose has the lowest prediction error compared to the other two models. The second model with baby length and gestational age as predictors performs the worst which has the highest RMSE overall, and the interaction model is in the middle.
